@@ -1,35 +1,51 @@
-import { View, Text, Image, StyleSheet } from "react-native";
+import { useLayoutEffect } from "react";
+import { View, Text, Image, StyleSheet, ScrollView, Button } from "react-native";
+import IconButton from "../components/IconButton";
+import Lists from "../components/MealDetail/Lists";
+import Subtitle from "../components/MealDetail/Subtitle";
 import MealDetails from "../components/MealDetails";
 import { MEALS } from "../data/dummy-data";
 
 
-const MealDetailsScreen = ({ route }) => {
+const MealDetailsScreen = ({ route, navigation }) => {
     const mealId = route.params.mealId;
-
     const selectedMeal = MEALS.find((meal) => meal.id === mealId)
 
+    const handleRightTopButton = () => {
+        console.log('Pressed!');
+    }
+
+    useLayoutEffect(() => {
+        navigation.setOptions({
+            headerRight: () => {
+                return <IconButton onPress={handleRightTopButton} icon="star" color="white" />
+            }
+        })
+    }, [navigation, handleRightTopButton])
+
     return (
-        <View>
+        <ScrollView style={styles.rootContainer}>
             <Image style={styles.image} source={{ uri: selectedMeal.imageUrl }} />
             <Text style={styles.title}>{selectedMeal.title}</Text>
             <MealDetails textStyle={styles.detailText} duration={selectedMeal.duration} complexity={selectedMeal.complexity} affordability={selectedMeal.affordability} />
-            <View style={styles.subtitleContainer}>
-                <Text style={styles.subtitle}>Ingredients</Text>
+            <View style={styles.listOuterContainer}>
+                <View style={styles.listContainer}>
+                    <Subtitle>Ingredients</Subtitle>
+                    <Lists lists={selectedMeal.ingredients} />
+                    <Subtitle>Steps</Subtitle>
+                    <Lists lists={selectedMeal.steps} />
+                </View>
             </View>
-            {
-                selectedMeal.ingredients.map((ingredient) => <Text key={ingredient}>{ingredient}</Text>)
-            }
-            <View>
-                <Text>Steps</Text>
-            </View>
-            {selectedMeal.steps.map((step) => <Text key={step}>{step}</Text>)}
-        </View>
+        </ScrollView>
     );
 };
 
 export default MealDetailsScreen;
 
 const styles = StyleSheet.create({
+    rootContainer: {
+        marginBottom: 32
+    },
     image: {
         width: '100%',
         height: 350
@@ -44,11 +60,11 @@ const styles = StyleSheet.create({
     detailText: {
         color: 'white'
     },
-    subtitleContainer: {
-        borderBottomColor:'white',
-        borderBottomWidth:2,
+    listOuterContainer: {
+        alignItems: 'center'
     },
-    subtitle: {
-        color:'white'
+    listContainer: {
+        width: '80%',
+        marginHorizontal: 'auto'
     }
 })
